@@ -30,41 +30,10 @@ X = [ones(m, 1) X];
 %       for each row.
 %       
 
-
-%X(1,:)'
-%all_theta(1,:)
-
-%X(1,:)' .* all_theta(1,:)
-%pause
-
-
-p = zeros(m, 1);
-for i = 1:size(X, 1)
-	pred = zeros(2, 1);
-	for j = 1:size(all_theta, 1)
-		pred(j,:) = sum(sigmoid(X(i,:) .* all_theta(j,:)));
-
-
-
-	end
-
-%	if (pred(1) > pred(2))
-%		p(i,:) = 1;
-%	else
-%		p(i,:) = 2;
-
-	for k = 1:size(pred, 1)
-
-		if (p(i,:) == 0 || (pred(k,:) > pred( p(i,:) ,:) ))
-			p(i,:) = k;
-
-	end
-
-
-end
+h = sigmoid(X * all_theta');
+[ps, p] = max(h, [], 2);
 
 p
-
 % =========================================================================
 
 
