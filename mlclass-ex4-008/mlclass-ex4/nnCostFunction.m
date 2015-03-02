@@ -62,17 +62,16 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
-X = [X , ones(m, 1)];
-hypothesis1 = sigmoid(X * Theta1'); 								%'
 
-a2 = (1 / m) * sum( -y .* log(hypothesis1) - (1 - y)  .* log(1 - hypothesis1) );
+Y = bsxfun(@eq, y, 1:num_labels);
 
-a2 = [a2, ones(size(a2, 1))];
-hypothesis2 = sigmoid(a2 * Theta2'); 								%'
+a1 = [ones(m, 1), X]; % [5000, 401]
+a2 = sigmoid(Theta1 * a1'); % [25, 5000]
+a2 = [ones(1, size(a2, 2)); a2]; %  [26, 5000]
+hypothesis = sigmoid(Theta2 * a2); % [10, 5000]
 
-
-J = (1 / m) * sum(-y .* log(hypothesis2) - (1 - y) .* log(1 - hypothesis2));
-
+cost = (-Y .* log(hypothesis)') - ( (1 - Y) .* log(1 - hypothesis)');
+J = (1/m) * sum( cost(:) );
 
 
 
