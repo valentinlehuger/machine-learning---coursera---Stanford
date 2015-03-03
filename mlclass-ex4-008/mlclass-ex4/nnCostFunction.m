@@ -71,43 +71,43 @@ a2 = [ones(1, size(a2, 2)); a2]; %  [26, 5000]
 hypothesis = sigmoid(Theta2 * a2); % [10, 5000]
 
 cost = (-Y .* log(hypothesis)') - ( (1 - Y) .* log(1 - hypothesis)');
-				    J = (1/m) * sum( cost(:) );
+J = (1/m) * sum( cost(:) );
+
+Theta1_filtered_squared = Theta1(:, 2:end) .^2;
+Theta2_filtered_squared = Theta2(:, 2:end) .^2;
+
+J = J + ((lambda / (2 * m)) * (sum(Theta1_filtered_squared(:)) + sum(Theta2_filtered_squared(:))));
 
 
-				    Theta1_filtered_squared = Theta1(:, 2:end) .^2;
-				    Theta2_filtered_squared = Theta2(:, 2:end) .^2;
 
-				    J = J + ((lambda / (2 * m)) * (sum(Theta1_filtered_squared(:)) + sum(Theta2_filtered_squared(:))));
+% X [5000 x 400]
+% y [5000 * 1]
+% Theta1 [25 * 401]
+% Theta2 [10 * 26]
 
+D_l1 = zeros(size(Theta1));
+D_l2 = zeros(size(Theta2));
 
-
-				    % X [5000 x 400]
-				    % y [5000 * 1]
-				    % Theta1 [25 * 401]
-				    % Theta2 [10 * 26]
-
-				    D_l1 = zeros(size(Theta1));
-				    D_l2 = zeros(size(Theta2));
 for t = 1:m
 
-				    a1 = [ones(size(X, 1), 1) X]; % a1 = [5000 x 401]
-				    z2 = Theta1 * a1';     %' z2 = [25 x 5000]
-				    a2 = sigmoid(z2);
-				    a2 = [ones(1, size(a2, 2)); a2];       % a2 = [26 x 5000]
-				    z3 = Theta2 * a2;
-				    a3 = sigmoid(z3);    % a3 = [10 x 5000]
+	a1 = [ones(size(X, 1), 1) X]; % a1 = [5000 x 401]
+	z2 = Theta1 * a1';     %' z2 = [25 x 5000]
+	a2 = sigmoid(z2);
+	a2 = [ones(1, size(a2, 2)); a2];       % a2 = [26 x 5000]
+	z3 = Theta2 * a2;
+	a3 = sigmoid(z3);    % a3 = [10 x 5000]
 
-				    yk = y(t);
+	yk = y(t);
 
-				    d3 = a3 .- yk;     % d3 = [10 x 5000]
-				    d2 = Theta2(:,2:end)'  * d3;	%' d2 = [25 x 10] * [10 x 5000] == [25 x 5000]
-				    d2 = d2 .* sigmoidGradient(z2); % d2 = [25 x 5000]
-				    D_l1 = D_l1 + (d2 * a1);
-				    D_l2 = D_l2 + (d3 * a2');%'
+	d3 = a3 .- yk;     % d3 = [10 x 5000]
+	d2 = Theta2(:,2:end)'  * d3;	%' d2 = [25 x 10] * [10 x 5000] == [25 x 5000]
+	d2 = d2 .* sigmoidGradient(z2); % d2 = [25 x 5000]
+	D_l1 = D_l1 + (d2 * a1);
+	D_l2 = D_l2 + (d3 * a2');%'
 
-				    end
+end
 
-				    Theta1_grad = (1 / m) * D_l1;
+Theta1_grad = (1 / m) * D_l1;
 Theta2_grad = (1 / m) * D_l2;
 
 
