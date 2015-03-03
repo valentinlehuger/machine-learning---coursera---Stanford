@@ -74,8 +74,11 @@ cost = (-Y .* log(hypothesis)') - ( (1 - Y) .* log(1 - hypothesis)');
 J = (1/m) * sum( cost(:) );
 
 
+Theta1_filtered_squared = Theta1(2:end)' * Theta1(2:end)		%'
+Theta2_filtered_squared = Theta2(2:end)' * Theta2(2:end)		%'
 
 
+J = J + (lambda / (2 * m)) * (sum(Theta1_filtered_squared)) + sum(Theta2_filtered_squared))
 
 
 
