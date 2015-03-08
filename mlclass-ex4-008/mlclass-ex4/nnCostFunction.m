@@ -63,55 +63,37 @@ Theta2_grad = zeros(size(Theta2));
   %
 
 
-  Y = bsxfun(@eq, y, 1:num_labels);
+y_mat = bsxfun(@eq, y, [1:max(y)]);
 
-a1 = [ones(m, 1), X]; % [5000, 401]
-a2 = sigmoid(Theta1 * a1'); % [25, 5000]
-a2 = [ones(1, size(a2, 2)); a2]; %  [26, 5000]
-hypothesis = sigmoid(Theta2 * a2); % [10, 5000]
+a1 = [ones(m, 1) X];
 
-cost = (-Y .* log(hypothesis)') - ( (1 - Y) .* log(1 - hypothesis)');
-J = (1/m) * sum( cost(:) );
+z2 = a1 * Theta1';
 
-Theta1_filtered_squared = Theta1(:, 2:end) .^2;
-Theta2_filtered_squared = Theta2(:, 2:end) .^2;
+a2 = sigmoid ( z2);
+a2 = [ones(m, 1) a2];
 
-J = J + ((lambda / (2 * m)) * (sum(Theta1_filtered_squared(:)) + sum(Theta2_filtered_squared(:))));
+z3 = a2 * Theta2';
 
+a3 = sigmoid (z3);
 
+J = (1/m) * sum(sum( -y_mat .* log (a3) - (1 - y_mat) .* log(1 - a3) ));
 
-% X [5000 x 400]
-% y [5000 * 1]
-% Theta1 [25 * 401]
-% Theta2 [10 * 26]
+reg_terms = (lambda / (2*m)) * ( sum(sum(Theta1(:, 2:end).^2)) + sum(sum(Theta2(:, 2:end).^2)) );
 
-D_l1 = zeros(size(Theta1));
-D_l2 = zeros(size(Theta2));
+J = J + reg_terms;
 
-for t = 1:m
+d3 = a3 - y_mat;
 
-	a1 = [ones(size(X, 1), 1) X]; % a1 = [5000 x 401]
-	z2 = Theta1 * a1';     %' z2 = [25 x 5000]
-	a2 = sigmoid(z2);
-	a2 = [ones(1, size(a2, 2)); a2];       % a2 = [26 x 5000]
-	z3 = Theta2 * a2;
-	a3 = sigmoid(z3);    % a3 = [10 x 5000]
+d2 = ( d3 * Theta2(:, 2:end) ) .* sigmoidGradient(z2);
 
-	yk = y(t);
+D2 = d3' * a2;
+D1 = d2' * a1;
 
-	d3 = a3 .- yk;     % d3 = [10 x 5000]
-	d2 = Theta2(:,2:end)'  * d3;	%' d2 = [25 x 10] * [10 x 5000] == [25 x 5000]
-	d2 = d2 .* sigmoidGradient(z2); % d2 = [25 x 5000]
-	D_l1 = D_l1 + (d2 * a1);
-	D_l2 = D_l2 + (d3 * a2');%'
+Theta1_grad = (1/m) * D1;
+Theta2_grad = (1/m) * D2;
 
-end
-
-Theta1_grad = (1 / m) * D_l1;
-Theta2_grad = (1 / m) * D_l2;
-
-
-
+Theta1_grad(:,2:end) = Theta1_grad(:,2:end) + (lambda / m) * Theta1(:, 2:end);
+Theta2_grad(:,2:end) = Theta2_grad(:,2:end) + (lambda / m) * Theta2(:, 2:end);
 
 % -------------------------------------------------------------
 
